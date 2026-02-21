@@ -1,16 +1,29 @@
 Package: Slitherlink
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
+Title: Slitherlink Puzzle Game with Shiny Interface
+Version: 1.0.0
+Date: 2026-03-09
 Authors@R: c(
-    person(
-      "Jane", "Doe",
-      email = "jane@example.com",
-      role = c("aut", "cre")
-    )
-  )
-Description: More about what it does (maybe more than one line).
-    Continuation lines should be indented.
-License: What license is it under?
+           person("Ousmane", "SOUMAH", email = "ousmaneozosoumah924@gmail.com", role = c("aut", "cre")),
+           person("Rodrigue", "MAMY", email = "mamyrodriguez7@gmail.com", role = c("aut", "ctb")),
+           person("Jean-Michel", "MARIN", email = "jean-michel.marin@umontpellier.fr", role = "rev")
+           )
+Description: Un package R complet pour jouer et résoudre des puzzles Slitherlink.
+    Slitherlink est un puzzle logique où le joueur trace une seule boucle fermée
+    sur une grille de points en respectant des contraintes numériques.
+    Ce package fournit des fonctions pour la création, validation, résolution
+    de puzzles et une application Shiny interactive.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+RoxygenNote: 7.3.3
+Imports:
+    shiny (>= 1.7.0),
+    jsonlite (>= 1.8.0),
+    R6 (>= 2.5.0),
+    ggplot2 (>= 3.0.0)
+Suggests:
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
