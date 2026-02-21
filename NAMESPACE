@@ -1,1 +1,36 @@
-exportPattern("^[[:alpha:]]+")
+# Classes / structures
+export(SlitherlinkGrid)
+
+# Construction et génération
+export(create_grid)
+export(generate_random_puzzle)
+export(create_example_easy)
+export(create_example_medium)
+export(create_example_hard)
+
+# Manipulation et conversion
+export(add_constraint)
+export(grid_to_json)
+export(json_to_grid)
+export(load_puzzle)
+export(save_puzzle)
+
+# Vérification et validation
+export(check_constraints)
+export(check_vertex_degrees)
+export(is_valid_loop)
+export(validate_solution)
+
+# Résolution
+export(solve_puzzle)
+
+# Visualisation
+export(plot_grid)
+export(plot_solution)
+
+# Statistiques
+export(grid_statistics)
+export(print_statistics)
+
+# Application
+export(run_slitherlink_app)
