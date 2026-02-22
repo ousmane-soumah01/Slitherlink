@@ -35,14 +35,8 @@ SlitherlinkGrid <- R6::R6Class(
       self$constraints <- matrix(NA, nrow = height, ncol = width)
       # Liste vide d'arêtes
       self$edges <- list()
-    }
-
-    initialize = function(width = 5, height = 5) {
-      self$width <- width
-      self$height <- height
-      self$constraints <- matrix(NA, nrow = height, ncol = width)
-      self$edges <- list()
     },
+
 
     #' @description
     #' Ajoute une contrainte (chiffre) dans une case
@@ -51,14 +45,37 @@ SlitherlinkGrid <- R6::R6Class(
     #' @param col Colonne de la case (1 à width)
     #' @param value Valeur de la contrainte (0, 1, 2, ou 3)
     add_constraint = function(row, col, value) {
+      # Vérifier que la position est dans la grille
       if (row < 1 || row > self$height || col < 1 || col > self$width) {
         stop("Position hors limites de la grille")
       }
+      # Vérifier que la valeur est valide
       if (!value %in% c(0, 1, 2, 3)) {
         stop("La valeur doit être 0, 1, 2, ou 3")
       }
+      # Ajouter la contrainte dans la matrice
       self$constraints[row, col] <- value
-    }
+    },
+
+
+
+    #' @description
+    #' Ajoute une arête (ligne) à la solution
+    #'
+    #' @param from Point de départ (vecteur c(row, col))
+    #' @param to Point d'arrivée (vecteur c(row, col))
+    add_edge = function(from, to) {
+      # Vérifier que les points sont adjacents
+      if (!self$are_adjacent(from, to)) {
+        stop("Les points doivent être adjacents horizontalement ou verticalement")
+      }
+
+      # Ajouter l'arête si elle n'existe pas déjà
+      if (!self$has_edge(from, to)) {
+        edge <- list(from = from, to = to)
+        self$edges <- c(self$edges, list(edge))
+      }
+    },
 
   )
 )
