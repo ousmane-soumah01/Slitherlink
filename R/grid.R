@@ -36,5 +36,29 @@ SlitherlinkGrid <- R6::R6Class(
       # Liste vide d'arêtes
       self$edges <- list()
     }
+
+    initialize = function(width = 5, height = 5) {
+      self$width <- width
+      self$height <- height
+      self$constraints <- matrix(NA, nrow = height, ncol = width)
+      self$edges <- list()
+    },
+
+    #' @description
+    #' Ajoute une contrainte (chiffre) dans une case
+    #'
+    #' @param row Ligne de la case (1 à height)
+    #' @param col Colonne de la case (1 à width)
+    #' @param value Valeur de la contrainte (0, 1, 2, ou 3)
+    add_constraint = function(row, col, value) {
+      if (row < 1 || row > self$height || col < 1 || col > self$width) {
+        stop("Position hors limites de la grille")
+      }
+      if (!value %in% c(0, 1, 2, 3)) {
+        stop("La valeur doit être 0, 1, 2, ou 3")
+      }
+      self$constraints[row, col] <- value
+    }
+
   )
 )
