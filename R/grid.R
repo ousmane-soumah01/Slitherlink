@@ -92,5 +92,34 @@ SlitherlinkGrid <- R6::R6Class(
       }, self$edges)
     },
 
+
+    #' @description
+    #' Vérifie si deux points sont adjacents
+    #'
+    #' @param p1 Premier point c(row, col)
+    #' @param p2 Deuxième point c(row, col)
+    #' @return TRUE si adjacents, FALSE sinon
+    are_adjacent = function(p1, p2) {
+      # Adjacence horizontale ou verticale uniquement
+      (abs(p1[1] - p2[1]) == 1 && p1[2] == p2[2]) ||
+        (abs(p1[2] - p2[2]) == 1 && p1[1] == p2[1])
+    },
+
+
+
+
+    #' @description
+    #' Vérifie si une arête existe déjà
+    #'
+    #' @param from Point de départ
+    #' @param to Point d'arrivée
+    #' @return TRUE si l'arête existe, FALSE sinon
+    has_edge = function(from, to) {
+      any(sapply(self$edges, function(e) {
+        (all(e$from == from) && all(e$to == to)) ||
+          (all(e$from == to) && all(e$to == from))
+      }))
+    },
+
   )
 )
