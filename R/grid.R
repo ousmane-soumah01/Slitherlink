@@ -77,5 +77,20 @@ SlitherlinkGrid <- R6::R6Class(
       }
     },
 
+
+
+    #' @description
+    #' Retire une arête de la solution
+    #'
+    #' @param from Point de départ
+    #' @param to Point d'arrivée
+    remove_edge = function(from, to) {
+      # Filtrer pour retirer l'arête
+      self$edges <- Filter(function(e) {
+        !(all(e$from == from) && all(e$to == to)) &&
+          !(all(e$from == to) && all(e$to == from))
+      }, self$edges)
+    },
+
   )
 )
