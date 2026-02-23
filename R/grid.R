@@ -160,3 +160,19 @@ SlitherlinkGrid <- R6::R6Class(
 
   )
 )
+
+
+#' Crée une nouvelle grille Slitherlink
+#'
+#' @param width Largeur de la grille (colonnes)
+#' @param height Hauteur de la grille (lignes)
+#' @return Un objet SlitherlinkGrid
+#'
+#' @examples
+#' grid <- create_grid(5, 5)
+#' grid$add_constraint(2, 2, 3)
+#'
+#' @export
+create_grid <- function(width = 5, height = 5) {
+  SlitherlinkGrid$new(width, height)
+}
