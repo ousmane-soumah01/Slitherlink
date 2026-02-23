@@ -148,5 +148,15 @@ SlitherlinkGrid <- R6::R6Class(
       return(count)
     },
 
+
+    #' @description
+    #' Affiche la grille (pour débogage)
+    print = function() {
+      cat("Grille Slitherlink", self$width, "x", self$height, "\n")
+      cat("Contraintes :\n")
+      print(self$constraints)
+      cat("Nombre d'arêtes tracées :", length(self$edges), "\n")
+    }
+
   )
 )
