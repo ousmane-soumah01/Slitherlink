@@ -176,3 +176,22 @@ SlitherlinkGrid <- R6::R6Class(
 create_grid <- function(width = 5, height = 5) {
   SlitherlinkGrid$new(width, height)
 }
+
+
+#' Ajoute une contrainte à une grille
+#'
+#' @param grid Objet SlitherlinkGrid
+#' @param row Ligne de la case
+#' @param col Colonne de la case
+#' @param value Valeur de la contrainte (0, 1, 2, ou 3)
+#' @return La grille modifiée
+#'
+#' @examples
+#' grid <- create_grid(5, 5)
+#' grid <- add_constraint(grid, 2, 2, 3)
+#'
+#' @export
+add_constraint <- function(grid, row, col, value) {
+  grid$add_constraint(row, col, value)
+  return(grid)
+}
