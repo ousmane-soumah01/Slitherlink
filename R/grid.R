@@ -121,5 +121,32 @@ SlitherlinkGrid <- R6::R6Class(
       }))
     },
 
+
+    #' @description
+    #' Compte le nombre d'arêtes autour d'une case
+    #'
+    #' @param row Ligne de la case
+    #' @param col Colonne de la case
+    #' @return Nombre d'arêtes tracées autour de la case
+    count_edges_around_cell = function(row, col) {
+      # Les 4 coins de la case
+      top_left <- c(row - 1, col - 1)
+      top_right <- c(row - 1, col)
+      bottom_left <- c(row, col - 1)
+      bottom_right <- c(row, col)
+
+      count <- 0
+      # Côté haut
+      if (self$has_edge(top_left, top_right)) count <- count + 1
+      # Côté bas
+      if (self$has_edge(bottom_left, bottom_right)) count <- count + 1
+      # Côté gauche
+      if (self$has_edge(top_left, bottom_left)) count <- count + 1
+      # Côté droit
+      if (self$has_edge(top_right, bottom_right)) count <- count + 1
+
+      return(count)
+    },
+
   )
 )
