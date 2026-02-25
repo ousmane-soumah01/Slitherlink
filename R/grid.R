@@ -93,6 +93,7 @@ SlitherlinkGrid <- R6::R6Class(
     },
 
 
+
     #' @description
     #' Vérifie si deux points sont adjacents
     #'
@@ -122,6 +123,7 @@ SlitherlinkGrid <- R6::R6Class(
     },
 
 
+
     #' @description
     #' Compte le nombre d'arêtes autour d'une case
     #'
@@ -147,6 +149,7 @@ SlitherlinkGrid <- R6::R6Class(
 
       return(count)
     },
+
 
 
     #' @description
@@ -177,7 +180,6 @@ create_grid <- function(width = 5, height = 5) {
   SlitherlinkGrid$new(width, height)
 }
 
-
 #' Ajoute une contrainte à une grille
 #'
 #' @param grid Objet SlitherlinkGrid
@@ -195,3 +197,5 @@ add_constraint <- function(grid, row, col, value) {
   grid$add_constraint(row, col, value)
   return(grid)
 }
+
+
