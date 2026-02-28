@@ -161,3 +161,46 @@ check_constraints <- function(grid) {
 
   return(TRUE)
 }
+
+
+
+
+
+#' Vérifie qu'aucun point n'a trop de connexions
+#'
+#' @description
+#' Dans une solution valide, chaque point doit avoir 0 ou 2 arêtes.
+#' Cette fonction vérifie qu'aucun point n'en a plus de 2.
+#'
+#' @param grid Objet SlitherlinkGrid
+#' @return TRUE si aucun point n'a plus de 2 connexions, FALSE sinon
+#'
+#' @export
+check_vertex_degrees <- function(grid) {
+  # Compter le degré de chaque point
+  degrees <- list()
+
+  for (edge in grid$edges) {
+    from <- paste(edge$from, collapse = ",")
+    to <- paste(edge$to, collapse = ",")
+
+    if (is.null(degrees[[from]])) {
+      degrees[[from]] <- 0
+    }
+    if (is.null(degrees[[to]])) {
+      degrees[[to]] <- 0
+    }
+
+    degrees[[from]] <- degrees[[from]] + 1
+    degrees[[to]] <- degrees[[to]] + 1
+  }
+
+  # Vérifier qu'aucun point n'a plus de 2 arêtes
+  for (point in names(degrees)) {
+    if (degrees[[point]] > 2) {
+      return(FALSE)
+    }
+  }
+
+  return(TRUE)
+}
