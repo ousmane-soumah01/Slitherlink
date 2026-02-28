@@ -124,3 +124,40 @@ is_valid_loop <- function(grid) {
     current <- next_point
   }
 }
+
+
+
+
+
+#' Vérifie que toutes les contraintes de la case sont respectées
+#'
+#' @description
+#' Pour chaque case avec un chiffre, vérifie que le nombre d'arêtes
+#' tracées autour de cette case correspond exactement au chiffre.
+#'
+#' @param grid Objet SlitherlinkGrid
+#' @return TRUE si toutes les contraintes sont respectées, FALSE sinon
+#'
+#' @export
+check_constraints <- function(grid) {
+  for (row in 1:grid$height) {
+    for (col in 1:grid$width) {
+      constraint <- grid$constraints[row, col]
+
+      # Si pas de contrainte, passer à la case suivante
+      if (is.na(constraint)) {
+        next
+      }
+
+      # Compter les arêtes autour de la case
+      count <- grid$count_edges_around_cell(row, col)
+
+      # Vérifier la contrainte
+      if (count != constraint) {
+        return(FALSE)
+      }
+    }
+  }
+
+  return(TRUE)
+}
