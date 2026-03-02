@@ -67,3 +67,33 @@ backtrack_solve <- function(grid, possible_edges, edge_index, max_iter, counter_
       return(NULL)
     }
   }
+
+  # Obtenir l'arête courante
+  edge <- possible_edges[[edge_index]]
+  from <- edge$from
+  to <- edge$to
+
+  # BRANCHE 1 : AVEC l'arête
+  tryCatch({
+    grid$add_edge(from, to)
+
+    # Vérifier si c'est prometteur (élagage)
+    if (is_promising(grid)) {
+      result <- backtrack_solve(grid, possible_edges, edge_index + 1, max_iter, counter_env)
+      if (!is.null(result)) return(result)
+    }
+
+    # Backtrack : retirer l'arête
+    grid$remove_edge(from, to)
+  }, error = function(e) {
+    # Si erreur, retirer l'arête quand même
+    grid$remove_edge(from, to)
+  })
+
+  # Vérification vitale : si la branche 1 a provoqué un timeout, on n'explore pas la branche 2 !
+  if (counter_env$limit_reached) return(NULL)
+
+  # BRANCHE 2 : SANS l'arête (continuer directement)
+  backtrack_solve(grid, possible_edges, edge_index + 1, max_iter, counter_env)
+}
+
