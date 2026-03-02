@@ -39,3 +39,31 @@ solve_puzzle <- function(grid, max_iterations = 10000000) {
     return(NULL)
   }
 }
+
+#' Algorithme de backtracking
+backtrack_solve <- function(grid, possible_edges, edge_index, max_iter, counter_env) {
+  # Si une autre branche a déjà atteint la limite, on stoppe tout immédiatement
+  if (counter_env$limit_reached) return(NULL)
+
+  # Incrémenter le compteur
+  counter_env$count <- counter_env$count + 1
+
+  # Afficher progression tous les 1000 itérations
+  if (counter_env$count %% 10000 == 0) {
+    cat("  Itération", counter_env$count, "...\n")
+  }
+
+  # Vérifier la limite d'itérations
+  if (counter_env$count > max_iter) {
+    counter_env$limit_reached <- TRUE
+    return(NULL)
+  }
+
+  # Cas de base : toutes les arêtes ont été décidées
+  if (edge_index > length(possible_edges)) {
+    if (validate_solution(grid)) {
+      return(grid)
+    } else {
+      return(NULL)
+    }
+  }
