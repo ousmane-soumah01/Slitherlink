@@ -56,3 +56,35 @@ test_that("Métriques heuristiques : les statistiques de graphe sont exactes", {
   expect_equal(stats$num_edges, 2, info = "Comptage des segments actifs défaillant.")
   expect_true(stats$max_possible_edges == 40, info = "La capacité théorique maximale du graphe (arêtes possibles) est fausse.")
 })
+
+
+test_that("Rendu CLI : le buffer de sortie standard (stdout) est correctement formaté", {
+  grid <- create_grid(2, 2)
+  grid$add_constraint(1, 1, 2)
+  grid$add_edge(c(0,0), c(0,1))
+
+  # Utilisation de expect_output pour intercepter le flux console (I/O stream)
+  # Cela garantit l'absence de crash sans polluer les logs de la pipeline CI/CD
+  expect_output(plot_grid(grid), "GRILLE SLITHERLINK", info = "L'en-tête du buffer CLI est manquante ou corrompue.")
+  expect_output(plot_solution(grid), "SOLUTION SLITHERLINK", info = "Le dump ASCII de la solution a échoué.")
+  expect_output(print_statistics(grid), "MÉTRIQUES HEURISTIQUES", info = "Le rendu console des statistiques a échoué.")
+})
+
+test_that("Rendu Spatial : l'usine ggplot2 génère un espace vectoriel structuré", {
+  # Contournement pour éviter l'échec en environnement minimal (ex: CI sans ggplot2)
+  skip_if_not_installed("ggplot2")
+
+  grid <- create_grid(2, 2)
+  grid$add_constraint(1, 1, 1)
+  grid$add_edge(c(0,0), c(0,1))
+
+  # Instanciation de l'objet graphique
+  p <- draw_grid_ggplot(grid)
+
+  # Vérification stricte du typage S3
+  expect_s3_class(p, "ggplot", info = "Le moteur de rendu ne retourne pas une instance ggplot valide.")
+
+  # Vérification de l'assemblage vectoriel (les couches de la grammaire graphique)
+  # On attend au moins les points de maillage, les grilles hline/vline, etc.
+  expect_true(length(p$layers) >= 3, info = "Couches graphiques (layers) manquantes dans l'assemblage de la matrice.")
+})
