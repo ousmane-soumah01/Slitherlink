@@ -114,3 +114,68 @@ propagate_constraints <- function(grid) {
   invisible(NULL)
 }
 
+
+#' Génère toutes les arêtes possibles (L'ULTIME OPTIMISATION)
+#'
+#' @description
+#' Combine les DEUX meilleures stratégies :
+#' 1. Exclure les arêtes des cases '0' (réduit l'espace de recherche).
+#' 2. Ordre géographique (permet de déclencher l'élagage très tôt).
+#'
+#' @param grid SlitherlinkGrid object
+#' @return Liste d'arêtes
+get_all_possible_edges <- function(grid) {
+  edges <- list()
+
+  # --- MINIS-FONCTIONS POUR VÉRIFIER SI UNE ARÊTE TOUCHE UN '0' ---
+
+  # Vérifie si une arête HORIZONTALE touche un zéro
+  touches_zero_h <- function(r, c) {
+    # r (0 à H), c (0 à W-1)
+    if (r > 0 && !is.na(grid$constraints[r, c + 1]) && grid$constraints[r, c + 1] == 0) return(TRUE)
+    if (r < grid$height && !is.na(grid$constraints[r + 1, c + 1]) && grid$constraints[r + 1, c + 1] == 0) return(TRUE)
+    return(FALSE)
+  }
+
+  # Vérifie si une arête VERTICALE touche un zéro
+  touches_zero_v <- function(r, c) {
+    # r (0 à H-1), c (0 à W)
+    if (c > 0 && !is.na(grid$constraints[r + 1, c]) && grid$constraints[r + 1, c] == 0) return(TRUE)
+    if (c < grid$width && !is.na(grid$constraints[r + 1, c + 1]) && grid$constraints[r + 1, c + 1] == 0) return(TRUE)
+    return(FALSE)
+  }
+
+  # --- PARCOURS GÉOGRAPHIQUE (Case par Case) ---
+  for (row in 1:grid$height) {
+    for (col in 1:grid$width) {
+
+      # 1. Arête HAUT de la case
+      if (!touches_zero_h(row - 1, col - 1)) {
+        edges <- c(edges, list(list(from = c(row - 1, col - 1), to = c(row - 1, col))))
+      }
+
+      # 2. Arête GAUCHE de la case
+      if (!touches_zero_v(row - 1, col - 1)) {
+        edges <- c(edges, list(list(from = c(row - 1, col - 1), to = c(row, col - 1))))
+      }
+
+      # 3. Arête DROITE (Seulement si on est sur le bord droit de la grille)
+      if (col == grid$width) {
+        if (!touches_zero_v(row - 1, col)) {
+          edges <- c(edges, list(list(from = c(row - 1, col), to = c(row, col))))
+        }
+      }
+
+      # 4. Arête BAS (Seulement si on est sur le bord bas de la grille)
+      if (row == grid$height) {
+        if (!touches_zero_h(row, col - 1)) {
+          edges <- c(edges, list(list(from = c(row, col - 1), to = c(row, col))))
+        }
+      }
+
+    }
+  }
+
+  return(edges)
+}
+
