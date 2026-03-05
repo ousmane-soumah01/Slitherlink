@@ -97,3 +97,20 @@ backtrack_solve <- function(grid, possible_edges, edge_index, max_iter, counter_
   backtrack_solve(grid, possible_edges, edge_index + 1, max_iter, counter_env)
 }
 
+
+#' Propagation de contraintes
+#'
+#' @description
+#' Applique des règles simples pour pré-remplir des arêtes évidentes.
+#' Pour l'instant, version minimale sans propagation.
+#'
+#' @param grid SlitherlinkGrid object
+propagate_constraints <- function(grid) {
+  # Version simple : pas de propagation avancée
+  # Améliorations possibles :
+  # - Contrainte 0 → aucune arête autour
+  # - Contrainte 3 dans un coin → 2 arêtes forcées
+  # - Contrainte 2 avec 2 arêtes adjacentes déjà placées → forcer les 2 autres
+  invisible(NULL)
+}
+
