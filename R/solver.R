@@ -179,3 +179,37 @@ get_all_possible_edges <- function(grid) {
   return(edges)
 }
 
+
+#' Élagage : vérifie si la solution partielle est prometteuse
+#'
+#' @description
+#' Applique des règles d'élagage pour couper les branches impossibles :
+#' - Aucun point ne doit avoir plus de 2 arêtes
+#' - Aucune contrainte ne doit être déjà violée
+#'
+#' @param grid SlitherlinkGrid object
+#' @return TRUE si la configuration peut mener à une solution, FALSE sinon
+is_promising <- function(grid) {
+  # Règle 1 : Aucun point ne doit avoir plus de 2 arêtes
+  if (!check_vertex_degrees(grid)) {
+    return(FALSE)
+  }
+
+  # Règle 2 : Aucune contrainte ne doit être déjà violée
+  for (row in 1:grid$height) {
+    for (col in 1:grid$width) {
+      constraint <- grid$constraints[row, col]
+      if (is.na(constraint)) next
+
+      count <- grid$count_edges_around_cell(row, col)
+
+      # Si on a déjà TROP d'arêtes autour de cette case, c'est impossible
+      if (count > constraint) {
+        return(FALSE)
+      }
+    }
+  }
+
+  return(TRUE)
+}
+
