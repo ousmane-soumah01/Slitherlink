@@ -28,3 +28,32 @@ load_puzzle <- function(filename) {
 
   return(grid)
 }
+
+#' Sauvegarde un puzzle
+#'
+#' @export
+save_puzzle <- function(grid, filename) {
+  constraints_list <- list()
+
+  for (row in 1:grid$height) {
+    for (col in 1:grid$width) {
+      value <- grid$constraints[row, col]
+      if (!is.na(value)) {
+        constraints_list[[length(constraints_list) + 1]] <- list(
+          row = row,
+          col = col,
+          value = value
+        )
+      }
+    }
+  }
+
+  puzzle_data <- list(
+    width = grid$width,
+    height = grid$height,
+    constraints = constraints_list
+  )
+
+  jsonlite::write_json(puzzle_data, filename, pretty = TRUE, auto_unbox = TRUE)
+  cat("Puzzle sauvegardé dans", filename, "\n")
+}
