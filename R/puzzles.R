@@ -57,3 +57,48 @@ save_puzzle <- function(grid, filename) {
   jsonlite::write_json(puzzle_data, filename, pretty = TRUE, auto_unbox = TRUE)
   cat("Puzzle sauvegardé dans", filename, "\n")
 }
+
+#' Puzzle facile 2×2
+#'
+#' @export
+create_example_easy <- function() {
+  grid <- create_grid(2, 2)
+  grid$add_constraint(1, 1, 2)
+  grid$add_constraint(2, 2, 2)
+  return(grid)
+}
+
+#' Puzzle moyen 3×3
+#'
+#' @export
+create_example_medium <- function() {
+  grid <- create_grid(3, 3)
+  grid$add_constraint(1, 1, 2)
+  grid$add_constraint(1, 3, 2)
+  grid$add_constraint(3, 1, 2)
+  grid$add_constraint(3, 3, 2)
+  return(grid)
+}
+
+#' Puzzle difficile 5×5
+#'
+#' @export
+create_example_hard <- function() {
+  grid <- create_grid(5, 5)
+
+  # 1. Les 4 coins
+  grid$add_constraint(1, 1, 2)
+  grid$add_constraint(1, 5, 2)
+  grid$add_constraint(5, 1, 2)
+  grid$add_constraint(5, 5, 2)
+
+  # 2. Le mur central de zéros (Élagage massif et instantané)
+  # Ce bloc de 0 empêche l'algorithme d'explorer l'intérieur
+  for (row in 2:4) {
+    for (col in 2:4) {
+      grid$add_constraint(row, col, 0)
+    }
+  }
+
+  return(grid)
+}
