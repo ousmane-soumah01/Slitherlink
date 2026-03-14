@@ -102,3 +102,23 @@ create_example_hard <- function() {
 
   return(grid)
 }
+
+#' Génère un puzzle aléatoire
+#'
+#' @export
+generate_random_puzzle <- function(width = 7, height = 7, density = 0.3) {
+  grid <- create_grid(width, height)
+
+  total_cells <- width * height
+  num_constraints <- round(total_cells * density)
+  positions <- sample(1:total_cells, num_constraints)
+
+  for (pos in positions) {
+    row <- ((pos - 1) %/% width) + 1
+    col <- ((pos - 1) %% width) + 1
+    value <- sample(0:3, 1)
+    grid$add_constraint(row, col, value)
+  }
+
+  return(grid)
+}
