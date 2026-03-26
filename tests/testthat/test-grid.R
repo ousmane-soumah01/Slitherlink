@@ -17,3 +17,13 @@ test_that("Ajout de contraintes fonctionne", {
   expect_equal(grid$constraints[2, 2], 3)
   expect_true(is.na(grid$constraints[1, 2]))
 })
+
+test_that("Ajout d'arêtes fonctionne", {
+  grid <- create_grid(2, 2)
+  grid$add_edge(c(0, 0), c(0, 1))
+  grid$add_edge(c(0, 1), c(1, 1))
+
+  expect_equal(length(grid$edges), 2)
+  expect_true(grid$has_edge(c(0, 0), c(0, 1)))
+  expect_false(grid$has_edge(c(0, 0), c(1, 0)))
+})
