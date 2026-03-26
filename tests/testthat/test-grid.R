@@ -36,3 +36,12 @@ test_that("Comptage d'arêtes autour d'une case fonctionne", {
   count <- grid$count_edges_around_cell(1, 1)
   expect_equal(count, 2)
 })
+
+test_that("Suppression d'arêtes fonctionne", {
+  grid <- create_grid(2, 2)
+  grid$add_edge(c(0, 0), c(0, 1))
+  expect_equal(length(grid$edges), 1)
+
+  grid$remove_edge(c(0, 0), c(0, 1))
+  expect_equal(length(grid$edges), 0)
+})
