@@ -27,3 +27,12 @@ test_that("Ajout d'arêtes fonctionne", {
   expect_true(grid$has_edge(c(0, 0), c(0, 1)))
   expect_false(grid$has_edge(c(0, 0), c(1, 0)))
 })
+
+test_that("Comptage d'arêtes autour d'une case fonctionne", {
+  grid <- create_grid(2, 2)
+  grid$add_edge(c(0, 0), c(0, 1))  # Haut de case (1,1)
+  grid$add_edge(c(0, 0), c(1, 0))  # Gauche de case (1,1)
+
+  count <- grid$count_edges_around_cell(1, 1)
+  expect_equal(count, 2)
+})
