@@ -22,3 +22,26 @@ test_that("Génération aléatoire fonctionne", {
   num_constraints <- sum(!is.na(grid$constraints))
   expect_true(num_constraints > 0)
 })
+
+test_that("Sauvegarde et chargement de puzzle fonctionne", {
+  grid <- create_grid(3, 3)
+  grid$add_constraint(1, 1, 2)
+  grid$add_constraint(2, 2, 3)
+
+  # Sauvegarder
+  temp_file <- tempfile(fileext = ".json")
+  save_puzzle(grid, temp_file)
+
+  expect_true(file.exists(temp_file))
+
+  # Charger
+  loaded <- load_puzzle(temp_file)
+
+  expect_equal(loaded$width, 3)
+  expect_equal(loaded$height, 3)
+  expect_equal(loaded$constraints[1, 1], 2)
+  expect_equal(loaded$constraints[2, 2], 3)
+
+  # Nettoyer
+  unlink(temp_file)
+})
