@@ -38,3 +38,26 @@ test_that("Le solveur interrompt la recherche et retourne NULL face à une topol
   # On s'assure d'une sortie gracieuse (NULL) plutôt qu'un crash ou une boucle infinie
   expect_true(is.null(solution), info = "Le solveur a retourné une solution pour une grille mathématiquement insoluble.")
 })
+
+
+test_that("L'instanciation par copie profonde (Deep Clone) préserve l'état de la grille parent", {
+  grid <- create_grid(3, 3)
+  grid$add_constraint(1, 1, 2)
+  grid$add_edge(c(0, 0), c(0, 1))
+
+  # Utilisation explicite du deep clone R6 pour isoler l'espace mémoire
+  # Crucial pour la création de branches dans l'arbre de recherche du solveur
+  clone <- grid$clone(deep = TRUE)
+
+  # Vérification du transfert d'état initial
+  expect_equal(clone$width, grid$width)
+  expect_equal(clone$height, grid$height)
+  expect_equal(clone$constraints[1, 1], 2)
+  expect_equal(length(clone$edges), 1)
+
+  # Mutation de l'enfant pour vérifier l'absence de référence croisée (shallow copy)
+  clone$add_constraint(2, 2, 3)
+
+  # La grille source doit rester immuable face aux opérations sur le clone
+  expect_true(is.na(grid$constraints[2, 2]), info = "Fuite mémoire : la modification du clone a altéré l'objet source.")
+})
