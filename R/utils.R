@@ -75,3 +75,72 @@ plot_solution <- function(grid) {
     cat("\n❌ Solution invalide (violation de contrainte ou topologie ouverte)\n\n")
   }
 }
+
+
+
+#' Convertit une grille en format JSON
+#'
+#' @param grid Objet SlitherlinkGrid
+#' @return Chaîne JSON
+#' @export
+grid_to_json <- function(grid) {
+  # Extraction et nettoyage des contraintes (ignorance des NA pour alléger le payload)
+  constraints_list <- list()
+  for (row in 1:grid$height) {
+    for (col in 1:grid$width) {
+      value <- grid$constraints[row, col]
+      if (!is.na(value)) {
+        constraints_list[[length(constraints_list) + 1]] <- list(
+          row = row, col = col, value = value
+        )
+      }
+    }
+  }
+
+  # Mapping de la liste d'arêtes en structure dictionnaire
+  edges_list <- list()
+  for (edge in grid$edges) {
+    edges_list[[length(edges_list) + 1]] <- list(
+      from = edge$from, to = edge$to
+    )
+  }
+
+  # Assemblage du DTO (Data Transfer Object)
+  data <- list(
+    width = grid$width,
+    height = grid$height,
+    constraints = constraints_list,
+    edges = edges_list
+  )
+
+  jsonlite::toJSON(data, pretty = TRUE, auto_unbox = TRUE)
+}
+
+#' Convertit du JSON en grille
+#'
+#' @param json_str Chaîne JSON
+#' @return Objet SlitherlinkGrid
+#' @export
+json_to_grid <- function(json_str) {
+  # Désérialisation et instanciation dynamique
+  data <- jsonlite::fromJSON(json_str)
+  grid <- create_grid(data$width, data$height)
+
+  # Reconstruction de l'état des contraintes
+  if (!is.null(data$constraints) && nrow(data$constraints) > 0) {
+    for (i in 1:nrow(data$constraints)) {
+      constraint <- data$constraints[i, ]
+      grid$add_constraint(constraint$row, constraint$col, constraint$value)
+    }
+  }
+
+  # Reconstruction de la topologie
+  if (!is.null(data$edges) && nrow(data$edges) > 0) {
+    for (i in 1:nrow(data$edges)) {
+      edge <- data$edges[i, ]
+      grid$add_edge(as.numeric(edge$from), as.numeric(edge$to))
+    }
+  }
+
+  return(grid)
+}
