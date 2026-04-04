@@ -144,3 +144,61 @@ json_to_grid <- function(json_str) {
 
   return(grid)
 }
+
+
+#' Calcule des statistiques sur une grille
+#'
+#' @param grid Objet SlitherlinkGrid
+#' @return Liste de statistiques
+#' @export
+grid_statistics <- function(grid) {
+  # Métriques absolues de contraintes
+  num_constraints <- sum(!is.na(grid$constraints))
+  count_0 <- sum(grid$constraints == 0, na.rm = TRUE)
+  count_1 <- sum(grid$constraints == 1, na.rm = TRUE)
+  count_2 <- sum(grid$constraints == 2, na.rm = TRUE)
+  count_3 <- sum(grid$constraints == 3, na.rm = TRUE)
+
+  # Calcul géométrique du nombre maximum théorique d'arêtes dans une grille matricielle
+  num_edges <- length(grid$edges)
+  max_possible_edges <- grid$width * (grid$height + 1) + grid$height * (grid$width + 1)
+
+  # Calcul du ratio d'information (utilisé par les heuristiques d'élagage)
+  density <- num_constraints / (grid$width * grid$height)
+
+  list(
+    width = grid$width,
+    height = grid$height,
+    total_cells = grid$width * grid$height,
+    num_constraints = num_constraints,
+    constraint_density = density,
+    constraints_by_value = list("0" = count_0, "1" = count_1, "2" = count_2, "3" = count_3),
+    num_edges = num_edges,
+    max_possible_edges = max_possible_edges,
+    edge_usage = if (max_possible_edges > 0) num_edges / max_possible_edges else 0
+  )
+}
+
+#' Affiche les statistiques d'une grille
+#'
+#' @param grid Objet SlitherlinkGrid
+#' @export
+print_statistics <- function(grid) {
+  stats <- grid_statistics(grid)
+
+  cat("\n")
+  cat("═══════════════════════════════════\n")
+  cat("     MÉTRIQUES HEURISTIQUES\n")
+  cat("═══════════════════════════════════\n\n")
+  cat("Dimensions         :", stats$width, "×", stats$height, "\n")
+  cat("Capacité mémoire   :", stats$total_cells, "cellules\n")
+  cat("Densité contraintes:", stats$num_constraints,
+      sprintf("(%.1f%% d'information a priori)", stats$constraint_density * 100), "\n")
+  cat("  - Zéros (Clear)  :", stats$constraints_by_value$`0`, "\n")
+  cat("  - Un    (Low)    :", stats$constraints_by_value$`1`, "\n")
+  cat("  - Deux  (Pass)   :", stats$constraints_by_value$`2`, "\n")
+  cat("  - Trois (High)   :", stats$constraints_by_value$`3`, "\n")
+  cat("Saturation du graphe:", stats$num_edges, "/", stats$max_possible_edges,
+      sprintf("(%.1f%%)", stats$edge_usage * 100), "\n")
+  cat("═══════════════════════════════════\n\n")
+}
