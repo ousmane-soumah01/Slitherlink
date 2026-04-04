@@ -77,7 +77,6 @@ plot_solution <- function(grid) {
 }
 
 
-
 #' Convertit une grille en format JSON
 #'
 #' @param grid Objet SlitherlinkGrid
@@ -115,6 +114,7 @@ grid_to_json <- function(grid) {
 
   jsonlite::toJSON(data, pretty = TRUE, auto_unbox = TRUE)
 }
+
 
 #' Convertit du JSON en grille
 #'
@@ -179,6 +179,7 @@ grid_statistics <- function(grid) {
   )
 }
 
+
 #' Affiche les statistiques d'une grille
 #'
 #' @param grid Objet SlitherlinkGrid
@@ -201,4 +202,76 @@ print_statistics <- function(grid) {
   cat("Saturation du graphe:", stats$num_edges, "/", stats$max_possible_edges,
       sprintf("(%.1f%%)", stats$edge_usage * 100), "\n")
   cat("═══════════════════════════════════\n\n")
+}
+
+
+#' Dessine une grille avec ggplot2
+#'
+#' @param grid Objet SlitherlinkGrid
+#' @return Un objet ggplot
+#' @export
+draw_grid_ggplot <- function(grid) {
+  if (!requireNamespace("ggplot2", quietly = TRUE)) {
+    stop("Dépendance manquante : ggplot2 est requis pour le rendu spatial.")
+  }
+
+  library(ggplot2)
+
+  # Étape 1 : Cartographie de l'espace vectoriel (matrice des intersections)
+  points_data <- expand.grid(x = 0:grid$width, y = 0:grid$height)
+
+  # Étape 2 : Projection des scalaires (contraintes) aux barycentres des cellules
+  constraints_data <- data.frame()
+  for (row in 1:grid$height) {
+    for (col in 1:grid$width) {
+      value <- grid$constraints[row, col]
+      if (!is.na(value)) {
+        constraints_data <- rbind(constraints_data, data.frame(
+          x = col - 0.5, y = grid$height - row + 0.5, label = as.character(value)
+        ))
+      }
+    }
+  }
+
+  # Étape 3 : Traduction de la liste d'adjacence en segments vectoriels
+  edges_data <- data.frame()
+  if (length(grid$edges) > 0) {
+    for (edge in grid$edges) {
+      edges_data <- rbind(edges_data, data.frame(
+        x = edge$from[2], y = grid$height - edge$from[1],
+        xend = edge$to[2], yend = grid$height - edge$to[1]
+      ))
+    }
+  }
+
+  # Assemblage graphique selon la grammaire des graphiques (Layers)
+  p <- ggplot() +
+    geom_point(data = points_data, aes(x = x, y = y), size = 3, color = "gray30") +
+    geom_hline(yintercept = 0:grid$height, color = "gray80", linewidth = 0.3) +
+    geom_vline(xintercept = 0:grid$width, color = "gray80", linewidth = 0.3) +
+
+    # Rendu conditionnel des couches de contraintes et topologies
+    {if (nrow(constraints_data) > 0)
+      geom_text(data = constraints_data, aes(x = x, y = y, label = label),
+                size = 8, color = "blue", fontface = "bold")
+    } +
+    {if (nrow(edges_data) > 0)
+      geom_segment(data = edges_data, aes(x = x, y = y, xend = xend, yend = yend),
+                   color = "red", linewidth = 2, lineend = "round")
+    } +
+
+    # Contrainte de ratio pour assurer des carrés parfaits
+    coord_fixed(ratio = 1) +
+    scale_x_continuous(breaks = 0:grid$width, expand = c(0.1, 0.1)) +
+    scale_y_continuous(breaks = 0:grid$height, expand = c(0.1, 0.1)) +
+    theme_minimal() +
+    theme(
+      panel.grid = element_blank(),
+      axis.title = element_blank(),
+      axis.text = element_text(size = 10),
+      plot.title = element_text(hjust = 0.5, size = 16, face = "bold")
+    ) +
+    labs(title = paste("Graphe Slitherlink - Structure", grid$width, "×", grid$height))
+
+  return(p)
 }
