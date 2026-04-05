@@ -137,8 +137,10 @@ json_to_grid <- function(json_str) {
   # Reconstruction de la topologie
   if (!is.null(data$edges) && nrow(data$edges) > 0) {
     for (i in 1:nrow(data$edges)) {
-      edge <- data$edges[i, ]
-      grid$add_edge(as.numeric(edge$from), as.numeric(edge$to))
+      # Nettoyage du typage : jsonlite imbrique les arrays dans des listes
+      from_coords <- as.numeric(unlist(data$edges$from[i]))
+      to_coords <- as.numeric(unlist(data$edges$to[i]))
+      grid$add_edge(from_coords, to_coords)
     }
   }
 
