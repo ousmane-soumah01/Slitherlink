@@ -81,10 +81,9 @@ test_that("Rendu Spatial : l'usine ggplot2 génère un espace vectoriel structur
   # Instanciation de l'objet graphique
   p <- draw_grid_ggplot(grid)
 
-  # Vérification stricte du typage S3
-  expect_s3_class(p, "ggplot", info = "Le moteur de rendu ne retourne pas une instance ggplot valide.")
+  # Vérification stricte du polymorphisme S3
+  expect_true(inherits(p, "ggplot"), info = "Le moteur de rendu ne retourne pas une instance ggplot valide.")
 
   # Vérification de l'assemblage vectoriel (les couches de la grammaire graphique)
-  # On attend au moins les points de maillage, les grilles hline/vline, etc.
   expect_true(length(p$layers) >= 3, info = "Couches graphiques (layers) manquantes dans l'assemblage de la matrice.")
 })
