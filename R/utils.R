@@ -275,3 +275,31 @@ draw_grid_ggplot <- function(grid) {
 
   return(p)
 }
+
+
+#' Lance l'application Shiny
+#'
+#' @param grid Grille optionnelle à charger au démarrage
+#' @export
+run_slitherlink_app <- function(grid = NULL) {
+  # Résolution du chemin absolu des assets Shiny dans le namespace du package
+  app_dir <- system.file("shiny", package = "Slitherlink")
+
+  if (app_dir == "") {
+    # Fallback pour environnement de développement (avant build du package)
+    app_dir <- file.path("inst", "shiny")
+  }
+
+  if (!dir.exists(app_dir)) {
+    stop("Erreur système : Le répertoire Shiny (inst/shiny) est introuvable.")
+  }
+
+  # Injection de dépendance via l'environnement global
+  # Permet au runtime Shiny d'accéder à l'état en cours du solveur
+  if (!is.null(grid)) {
+    assign("initial_grid", grid, envir = .GlobalEnv)
+  }
+
+  cat("Initialisation du serveur local Shiny...\n")
+  shiny::runApp(app_dir, display.mode = "normal")
+}
