@@ -94,6 +94,55 @@ server <- function(input, output, session) {
     }
   })
 
+  # --- Écouteurs d'événements : Cycle de vie d'une partie ---
+
+  observeEvent(input$new_game, {
+    grid <- switch(input$puzzle_select,
+                   "easy" = create_example_easy(),
+                   "medium" = create_example_medium(),
+                   "hard" = create_example_hard())
+    game_grid(grid)
+    solver_status(NULL)
+    message_text("✅ Nouvelle instance chargée en mémoire !")
+    message_type("success")
+  })
+
+  observeEvent(input$clear_solution, {
+    grid <- game_grid()
+    if (!is.null(grid)) {
+      # Deep clone obligatoire pour forcer la réévaluation du graphe réactif
+      new_grid <- grid$clone(deep = TRUE)
+      new_grid$edges <- list()
+      game_grid(new_grid)
+      message_text("🗑️ Purge de la liste d'adjacence effectuée.")
+      message_type("info")
+    }
+  })
+
+  observeEvent(input$check_solution, {
+    grid <- game_grid()
+    if (is.null(grid)) return()
+
+    # Appel au moteur Back-End de validation
+    if (validate_solution(grid)) {
+      message_text("🎉 Topologie parfaite ! La solution satisfait tous les invariants.")
+      message_type("success")
+    } else {
+      details <- ""
+      if (length(grid$edges) == 0) details <- "Graphe vide : aucune arête détectée."
+      else if (!is_valid_loop(grid)) details <- "Violation topologique : cycle ouvert ou degré > 2."
+      else if (!check_constraints(grid)) details <- "Violation numérique : désaccord avec la matrice de contraintes."
+
+      status <- solver_status()
+      if (!is.null(status) && status == "impossible") {
+        details <- paste(details, " || ❌ REJET : Le solveur a déjà prouvé l'insolvabilité de cette matrice.")
+      }
+
+      message_text(paste("❌ Validation échouée.", details))
+      message_type("error")
+    }
+  })
+
   # Rendu de la grille (Vectoriel)
   output$grid_plot <- renderPlot({
     if (!is.null(game_grid())) draw_grid_ggplot(game_grid())
