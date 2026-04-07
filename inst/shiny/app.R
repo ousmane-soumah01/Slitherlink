@@ -78,8 +78,63 @@ ui <- fluidPage(
 # ==========================================
 # LOGIQUE SERVEUR (State Management & Reactive Graph)
 # ==========================================
+
 server <- function(input, output, session) {
-  # (À implémenter : Gestion de l'état réactif)
+
+  # Initialisation du Graphe Réactif (State variables)
+  game_grid <- reactiveVal(NULL)
+  solver_status <- reactiveVal(NULL)
+  message_text <- reactiveVal("")
+  message_type <- reactiveVal("info")
+
+  # Hydratation de l'état initial (Fallback sur grille simple)
+  observe({
+    if (is.null(game_grid())) {
+      game_grid(create_example_easy())
+    }
+  })
+
+  # Rendu de la grille (Vectoriel)
+  output$grid_plot <- renderPlot({
+    if (!is.null(game_grid())) draw_grid_ggplot(game_grid())
+  })
+
+  # Dump ASCII pour l'audit et le debug
+  output$grid_display <- renderText({
+    grid <- game_grid()
+    if (is.null(grid)) return("Initialisation de l'espace mémoire...")
+
+    result <- "\n"
+    for (row in 1:grid$height) {
+      result <- paste0(result, "  "); for (col in 1:grid$width) result <- paste0(result, "+───")
+      result <- paste0(result, "+\n  ")
+      for (col in 1:grid$width) {
+        constraint <- grid$constraints[row, col]
+        result <- paste0(result, if(is.na(constraint)) "│   " else paste0("│ ", constraint, " "))
+      }
+      result <- paste0(result, "│\n")
+    }
+    result <- paste0(result, "  "); for (col in 1:grid$width) result <- paste0(result, "+───")
+    result <- paste0(result, "+\n\nArêtes tracées : ", length(grid$edges), "\n")
+    return(result)
+  })
+
+  # Agrégation des métriques en temps réel
+  output$stats <- renderText({
+    grid <- game_grid()
+    if (is.null(grid)) return("Aucun objet instancié")
+    stats <- grid_statistics(grid)
+    paste0("Dimensions : ", stats$width, "×", stats$height, "\nContraintes actives : ", stats$num_constraints, "\nSegments : ", stats$num_edges)
+  })
+
+  # Rendu dynamique des notifications utilisateur
+  output$message <- renderUI({
+    if (message_text() == "") return(NULL)
+    bg_color <- switch(message_type(), "success"="#d4edda", "error"="#f8d7da", "info"="#d1ecf1", "warning"="#fff3cd")
+    text_color <- switch(message_type(), "success"="#155724", "error"="#721c24", "info"="#0c5460", "warning"="#856404")
+    div(style = paste0("padding: 15px; margin: 10px 0; border-radius: 5px; background-color: ", bg_color, "; color: ", text_color, "; font-weight: bold; border: 1px solid ", text_color, "40;"), message_text())
+  })
 }
 
 shinyApp(ui = ui, server = server)
+
