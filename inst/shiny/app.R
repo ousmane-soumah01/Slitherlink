@@ -103,7 +103,7 @@ server <- function(input, output, session) {
                    "hard" = create_example_hard())
     game_grid(grid)
     solver_status(NULL)
-    message_text("✅ Nouvelle instance chargée en mémoire !")
+    message_text("✅ Nouvelle partie démarrée !")
     message_type("success")
   })
 
@@ -114,7 +114,7 @@ server <- function(input, output, session) {
       new_grid <- grid$clone(deep = TRUE)
       new_grid$edges <- list()
       game_grid(new_grid)
-      message_text("🗑️ Purge de la liste d'adjacence effectuée.")
+      message_text("🗑Boucle fermée de solution effacée.")
       message_type("info")
     }
   })
@@ -125,20 +125,22 @@ server <- function(input, output, session) {
 
     # Appel au moteur Back-End de validation
     if (validate_solution(grid)) {
-      message_text("🎉 Topologie parfaite ! La solution satisfait tous les invariants.")
+      message_text("🎉 Félicitations ! La solution est correcte !")
       message_type("success")
     } else {
       details <- ""
-      if (length(grid$edges) == 0) details <- "Graphe vide : aucune arête détectée."
-      else if (!is_valid_loop(grid)) details <- "Violation topologique : cycle ouvert ou degré > 2."
-      else if (!check_constraints(grid)) details <- "Violation numérique : désaccord avec la matrice de contraintes."
+      if (length(grid$edges) == 0) details <- "Aucune arête n'est tracée."
+      else if (!is_valid_loop(grid)) details <- "La boucle n'est pas fermée ou il y a des croisements."
+      else if (!check_constraints(grid)) details <- "Certaines contraintes ne sont pas respectées."
 
       status <- solver_status()
       if (!is.null(status) && status == "impossible") {
-        details <- paste(details, " || ❌ REJET : Le solveur a déjà prouvé l'insolvabilité de cette matrice.")
+        details <- paste(details, "❌ L'algorithme a déjà prouvé que cette grille n'a AUCUNE solution.")
+      } else if (!is.null(status) && status == "timeout") {
+        details <- paste(details, "⚠️ NOTE : L'algorithme s'est arrêté avant de trouver, il est possible que cette grille soit insoluble ou pas.")
       }
 
-      message_text(paste("❌ Validation échouée.", details))
+      message_text(paste("❌ Solution incorrecte.", details))
       message_type("error")
     }
   })
@@ -158,7 +160,7 @@ server <- function(input, output, session) {
     grid <- create_grid(input$custom_w, input$custom_h)
     game_grid(grid)
     solver_status(NULL)
-    message_text(paste("✅ Matrice vierge", input$custom_w, "×", input$custom_h, "instanciée."))
+    message_text(paste("✅ Grille vide", input$custom_w, "×", input$custom_h, "instanciée."))
     message_type("info")
   })
 
@@ -166,7 +168,10 @@ server <- function(input, output, session) {
     grid <- game_grid()
     if (is.null(grid)) return()
     if (input$c_row < 1 || input$c_row > grid$height || input$c_col < 1 || input$c_col > grid$width) {
-      message_text(paste("❌ Out of Bounds : Les limites de l'espace sont", grid$height, "×", grid$width))
+      message_text(paste(
+        "❌ Erreur : la taille de la grille est de (",
+        grid$height, ",", grid$width, ")"
+      ))
       message_type("error")
       return()
     }
@@ -174,7 +179,7 @@ server <- function(input, output, session) {
     new_grid$add_constraint(input$c_row, input$c_col, input$c_val)
     game_grid(new_grid)
     solver_status(NULL)
-    message_text(paste("✅ Mutation : Contrainte", input$c_val, "injectée en (", input$c_row, ",", input$c_col, ")."))
+    message_text(paste("✅ Contrainte", input$c_val, "ajoutée en (", input$c_row, ",", input$c_col, ")."))
     message_type("success")
   })
 
@@ -185,7 +190,7 @@ server <- function(input, output, session) {
     new_grid$constraints[input$c_row, input$c_col] <- NA  # Libération mémoire de la cellule
     game_grid(new_grid)
     solver_status(NULL)
-    message_text(paste("🗑️ Mutation : Effacement de la coordonnée (", input$c_row, ",", input$c_col, ")."))
+    message_text(paste("🗑️ Contrainte retirée à la position (", input$c_row, ",", input$c_col, ")."))
     message_type("info")
   })
 
@@ -198,7 +203,7 @@ server <- function(input, output, session) {
     new_grid$edges <- list()
     game_grid(new_grid)
     solver_status(NULL)
-    message_text("🧹 Reset global : Matrice des contraintes effacée.")
+    message_text("🧹 Toutes les contraintes ont été supprimées. La grille est vierge.")
     message_type("info")
   })
 
@@ -207,7 +212,7 @@ server <- function(input, output, session) {
     grid <- game_grid()
     if (is.null(grid)) return()
 
-    message_text("🤖 Computation en cours (Timeout de sécurité : 15 min)... Blocage du thread UI.")
+    message_text("🤖 Recherche en cours (Jusqu'à 15 minutes)... L'interface peut figer.")
     message_type("info")
     Sys.sleep(0.1) # Forcer le flush du Graphe Réactif avant blocage
 
@@ -222,16 +227,16 @@ server <- function(input, output, session) {
     if (!is.null(solution) && validate_solution(solution)) {
       game_grid(solution)
       solver_status("solved")
-      message_text(paste("✅ Succès de l'algorithme : Solution trouvée en", iters, "itérations d'arbre !"))
+      message_text(paste("✅ Puzzle résolu en", iters, "itérations !"))
       message_type("success")
     } else {
       if (is_timeout) {
         solver_status("timeout")
-        message_text("⚠️ Timeout d'élagage : Capacité de calcul dépassée avant épuisement de l'arbre.")
+        message_text("⚠️ La limite de calcul a été atteinte. La solution n'a pas été trouvée, mais cela ne signifie pas qu'il n'y a pas de solution.")
         message_type("warning")
       } else {
         solver_status("impossible")
-        message_text("❌ Contradiction mathématique prouvée : l'arbre de recherche a été épuisé sans solution.")
+        message_text("❌ Après avoir exploré 100% des possibilités, il est prouvé que cette grille n'a AUCUNE solution.")
         message_type("error")
       }
     }
@@ -242,10 +247,10 @@ server <- function(input, output, session) {
     if (!is.null(game_grid())) draw_grid_ggplot(game_grid())
   })
 
-  # Dump ASCII pour l'audit et le debug
+  # Dump pour l'audit et le debug
   output$grid_display <- renderText({
     grid <- game_grid()
-    if (is.null(grid)) return("Initialisation de l'espace mémoire...")
+    if (is.null(grid)) return("Chargement...")
 
     result <- "\n"
     for (row in 1:grid$height) {
@@ -262,10 +267,10 @@ server <- function(input, output, session) {
     return(result)
   })
 
-  # Agrégation des métriques en temps réel
+  # Statistiques en temps réel
   output$stats <- renderText({
     grid <- game_grid()
-    if (is.null(grid)) return("Aucun objet instancié")
+    if (is.null(grid)) return("Aucune partie")
     stats <- grid_statistics(grid)
     paste0("Dimensions : ", stats$width, "×", stats$height, "\nContraintes actives : ", stats$num_constraints, "\nSegments : ", stats$num_edges)
   })
@@ -280,4 +285,3 @@ server <- function(input, output, session) {
 }
 
 shinyApp(ui = ui, server = server)
-
