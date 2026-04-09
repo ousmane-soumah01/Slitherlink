@@ -143,6 +143,100 @@ server <- function(input, output, session) {
     }
   })
 
+  # --- Logique de l'Éditeur Dynamique de Grille ---
+
+  observe({
+    # Sécurisation des inputs (bridage dynamique sur les dimensions de la matrice)
+    grid <- game_grid()
+    if (!is.null(grid)) {
+      updateNumericInput(session, "c_row", max = grid$height)
+      updateNumericInput(session, "c_col", max = grid$width)
+    }
+  })
+
+  observeEvent(input$create_custom, {
+    grid <- create_grid(input$custom_w, input$custom_h)
+    game_grid(grid)
+    solver_status(NULL)
+    message_text(paste("✅ Matrice vierge", input$custom_w, "×", input$custom_h, "instanciée."))
+    message_type("info")
+  })
+
+  observeEvent(input$add_custom_c, {
+    grid <- game_grid()
+    if (is.null(grid)) return()
+    if (input$c_row < 1 || input$c_row > grid$height || input$c_col < 1 || input$c_col > grid$width) {
+      message_text(paste("❌ Out of Bounds : Les limites de l'espace sont", grid$height, "×", grid$width))
+      message_type("error")
+      return()
+    }
+    new_grid <- grid$clone(deep = TRUE)
+    new_grid$add_constraint(input$c_row, input$c_col, input$c_val)
+    game_grid(new_grid)
+    solver_status(NULL)
+    message_text(paste("✅ Mutation : Contrainte", input$c_val, "injectée en (", input$c_row, ",", input$c_col, ")."))
+    message_type("success")
+  })
+
+  observeEvent(input$remove_custom_c, {
+    grid <- game_grid()
+    if (is.null(grid)) return()
+    new_grid <- grid$clone(deep = TRUE)
+    new_grid$constraints[input$c_row, input$c_col] <- NA  # Libération mémoire de la cellule
+    game_grid(new_grid)
+    solver_status(NULL)
+    message_text(paste("🗑️ Mutation : Effacement de la coordonnée (", input$c_row, ",", input$c_col, ")."))
+    message_type("info")
+  })
+
+  observeEvent(input$clear_all_custom_c, {
+    grid <- game_grid()
+    if (is.null(grid)) return()
+    new_grid <- grid$clone(deep = TRUE)
+    # Réinitialisation matricielle optimisée
+    new_grid$constraints <- matrix(NA, nrow = grid$height, ncol = grid$width)
+    new_grid$edges <- list()
+    game_grid(new_grid)
+    solver_status(NULL)
+    message_text("🧹 Reset global : Matrice des contraintes effacée.")
+    message_type("info")
+  })
+
+  # --- Interface Asynchrone : Bridge avec le Solveur Back-End ---
+  observeEvent(input$solve, {
+    grid <- game_grid()
+    if (is.null(grid)) return()
+
+    message_text("🤖 Computation en cours (Timeout de sécurité : 15 min)... Blocage du thread UI.")
+    message_type("info")
+    Sys.sleep(0.1) # Forcer le flush du Graphe Réactif avant blocage
+
+    # Isolation de l'exécution dans un TryCatch pour éviter le crash de l'app Shiny
+    solution <- tryCatch({
+      solve_puzzle(grid, max_iterations = 10000000)
+    }, error = function(e) NULL)
+
+    is_timeout <- getOption("slitherlink_timeout", FALSE)
+    iters <- getOption("slitherlink_iters", 0)
+
+    if (!is.null(solution) && validate_solution(solution)) {
+      game_grid(solution)
+      solver_status("solved")
+      message_text(paste("✅ Succès de l'algorithme : Solution trouvée en", iters, "itérations d'arbre !"))
+      message_type("success")
+    } else {
+      if (is_timeout) {
+        solver_status("timeout")
+        message_text("⚠️ Timeout d'élagage : Capacité de calcul dépassée avant épuisement de l'arbre.")
+        message_type("warning")
+      } else {
+        solver_status("impossible")
+        message_text("❌ Contradiction mathématique prouvée : l'arbre de recherche a été épuisé sans solution.")
+        message_type("error")
+      }
+    }
+  })
+
   # Rendu de la grille (Vectoriel)
   output$grid_plot <- renderPlot({
     if (!is.null(game_grid())) draw_grid_ggplot(game_grid())
