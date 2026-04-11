@@ -52,3 +52,33 @@ test_that("Event Dispatcher : Les sélecteurs de puzzles mettent à jour la mém
     expect_true(is.null(solver_status()), info = "Le statut du solveur n'a pas été réinitialisé après le chargement.")
   })
 })
+
+test_that("Éditeur Dynamique : Ajout, suppression et purge des contraintes spatiales", {
+  skip_if_not(file.exists(app_path))
+  app_env <- new.env()
+  suppressWarnings(source(app_path, local = app_env))
+
+  testServer(app_env$server, {
+    # 1. Instanciation d'une matrice custom (4x4)
+    session$setInputs(custom_w = 4, custom_h = 4, create_custom = 1)
+    expect_equal(game_grid()$width, 4)
+    expect_equal(game_grid()$height, 4)
+
+    # 2. Injection d'une contrainte (Write)
+    session$setInputs(c_row = 2, c_col = 3, c_val = 3, add_custom_c = 1)
+    expect_equal(game_grid()$constraints[2, 3], 3, info = "Échec de l'injection matricielle (ajout contrainte).")
+
+    # 3. Suppression ciblée (Delete)
+    session$setInputs(remove_custom_c = 1) # Reprend c_row=2, c_col=3
+    expect_true(is.na(game_grid()$constraints[2, 3]), info = "La libération mémoire de la cellule a échoué (suppression).")
+
+    # 4. Protection Out of Bounds (Erreur utilisateur)
+    session$setInputs(c_row = 10, c_col = 10, add_custom_c = 2) # Dépasse la grille 4x4
+    expect_equal(message_type(), "error", info = "Le validateur UI n'a pas bloqué des coordonnées hors-limites.")
+
+    # 5. Purge globale (Reset)
+    session$setInputs(c_row = 1, c_col = 1, c_val = 2, add_custom_c = 3)
+    session$setInputs(clear_all_custom_c = 1)
+    expect_true(is.na(game_grid()$constraints[1, 1]), info = "Le bouton de purge globale n'a pas écrasé la matrice.")
+  })
+})
