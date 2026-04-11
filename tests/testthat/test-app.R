@@ -82,3 +82,29 @@ test_that("Éditeur Dynamique : Ajout, suppression et purge des contraintes spat
     expect_true(is.na(game_grid()$constraints[1, 1]), info = "Le bouton de purge globale n'a pas écrasé la matrice.")
   })
 })
+
+test_that("Bridge Back-End : Le bouton de résolution déclenche l'arbre de recherche", {
+  skip_if_not(file.exists(app_path))
+  app_env <- new.env()
+  suppressWarnings(source(app_path, local = app_env))
+
+  testServer(app_env$server, {
+    # On initialise explicitement une grille facile pour s'assurer que le solveur termine vite
+    session$setInputs(puzzle_select = "easy", new_game = 1)
+
+    # Appel de la fonction de résolution algorithmique
+    session$setInputs(solve = 1)
+
+    # Assertions sur la promesse de retour du solveur
+    expect_equal(solver_status(), "solved", info = "Le solveur a échoué sur la grille d'échauffement.")
+    expect_equal(message_type(), "success")
+
+    # Vérification que le Front-End a bien rafraîchi la grille avec la topologie complète
+    grid <- game_grid()
+    expect_true(length(grid$edges) > 0, info = "La liste d'adjacence est restée vide après la résolution.")
+
+    # Simulation de la validation manuelle par l'utilisateur
+    session$setInputs(check_solution = 1)
+    expect_match(message_text(), "Félicitations", info = "Le moteur de validation UI a rejeté une solution mathématiquement exacte.")
+  })
+})
