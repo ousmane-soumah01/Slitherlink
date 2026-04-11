@@ -32,3 +32,23 @@ test_that("Hydratation du Graphe Réactif : L'état initial charge la grille Fac
     expect_equal(message_type(), "info")
   })
 })
+
+test_that("Event Dispatcher : Les sélecteurs de puzzles mettent à jour la mémoire", {
+  skip_if_not(file.exists(app_path))
+  app_env <- new.env()
+  suppressWarnings(source(app_path, local = app_env))
+
+  testServer(app_env$server, {
+    # Mock (Simulation) de l'action utilisateur : sélection du niveau Difficile
+    session$setInputs(puzzle_select = "hard", new_game = 1)
+
+    grid <- game_grid()
+    # Vérification de la mutation d'état
+    expect_equal(grid$width, 5, info = "Le changement de puzzle n'a pas modifié la dimension (attendu: 5x5).")
+
+    # Vérification du retour visuel à l'utilisateur
+    expect_match(message_text(), "Nouvelle partie démarrée", info = "Le logger UI n'a pas capturé le succès de l'action.")
+    expect_equal(message_type(), "success")
+    expect_true(is.null(solver_status()), info = "Le statut du solveur n'a pas été réinitialisé après le chargement.")
+  })
+})
