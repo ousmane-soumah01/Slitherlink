@@ -1,0 +1,16 @@
+{
+  "width": 2,
+  "height": 2,
+  "constraints": [
+    {
+      "row": 1,
+      "col": 1,
+      "value": 2
+    },
+    {
+      "row": 2,
+      "col": 2,
+      "value": 2
+    }
+  ]
+}

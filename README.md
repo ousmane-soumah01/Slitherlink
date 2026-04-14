@@ -247,11 +247,11 @@ Slitherlink/
 ├── tests/                      # Tests unitaires
 │   ├── testthat.R              # Point d'entrée testthat
 │   └── testthat/               # Fichiers de tests
-│       ├── test-grid.R         # Tests de la classe grille (5 tests)
-│       ├── test-solver.R       # Tests du solveur (3 tests)
-│       ├── test-validation.R   # Tests de validation (3 tests)
-│       ├── test-puzzles.R      # Tests de gestion des puzzles (3 tests)
-│       ├── test-utils.R        # Tests des utilitaires (3 tests)
+│       ├── test-grid.R         # Tests de la classe grille (14 tests)
+│       ├── test-solver.R       # Tests du solveur (8 tests)
+│       ├── test-validation.R   # Tests de validation (5 tests)
+│       ├── test-puzzles.R      # Tests de gestion des puzzles (14 tests)
+│       ├── test-utils.R        # Tests des utilitaires (14 tests)
 │       └── test-app.R          # Tests de l'application Shiny (19 tests)
 │                                 # Hydratation Shiny, event dispatcher,
 │                                 # éditeur et bridge solveur
@@ -262,7 +262,7 @@ Slitherlink/
 ├── man/                        # Documentation générée par roxygen2
 ├── vignettes/                  # Vignettes du package (répertoire prévu)
 ├── DESCRIPTION                 # Métadonnées du package (v1.0.0)
-├── NAMESPACE                   # Fonctions exportées (19 exports)
+├── NAMESPACE                   # Fonctions exportées (22 exports)
 └── README.md                   # Documentation principale du projet
 ```
 ---
@@ -403,7 +403,7 @@ La documentation est générée avec `roxygen2` et disponible dans le répertoir
 ?run_slitherlink_app
 
 # Voir toutes les fonctions exportées
-help(package = "Slitherlink")
+getNamespaceExports("Slitherlink")
 ```
 
 ### Référence des fonctions exportées
@@ -462,7 +462,7 @@ Le projet s'est développé sur **8 semaines** (19 février → 17 avril 2026), 
 | Utils & visualisation ggplot2 | 29 mar – 5 avr | Ousmane |
 | Tests unitaires | 23 mar – 14 avr | Rodrigue puis Ousmane |
 | Application Shiny | 7–9 avr | Ousmane |
-| Documentation & dépôt | 14–17 avr | Ousmane |
+| Documentation & dépôt | 14–17 avr | Rodrigue puis Ousmane |
 
 > **14 avril 2026** — Commit du README final et correction des tests d'intégration Shiny (`session$flushReact`). `[ FAIL 0 | WARN 0 | SKIP 0 | PASS 74 ]`
 
