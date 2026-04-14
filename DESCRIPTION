@@ -2,7 +2,7 @@ Package: Slitherlink
 Type: Package
 Title: Slitherlink Puzzle Game with Shiny Interface
 Version: 1.0.0
-Date: 2026-03-09
+Date: 2026-04-17
 Authors@R: c(
            person("Ousmane", "SOUMAH", email = "ousmaneozosoumah924@gmail.com", role = c("aut", "cre")),
            person("Rodrigue", "MAMY", email = "mamyrodriguez7@gmail.com", role = c("aut", "ctb")),

@@ -41,6 +41,7 @@ solve_puzzle <- function(grid, max_iterations = 10000000) {
 }
 
 #' Algorithme de backtracking
+#' @keywords internal
 backtrack_solve <- function(grid, possible_edges, edge_index, max_iter, counter_env) {
   # Si une autre branche a déjà atteint la limite, on stoppe tout immédiatement
   if (counter_env$limit_reached) return(NULL)
@@ -105,6 +106,7 @@ backtrack_solve <- function(grid, possible_edges, edge_index, max_iter, counter_
 #' Pour l'instant, version minimale sans propagation.
 #'
 #' @param grid SlitherlinkGrid object
+#' @keywords internal
 propagate_constraints <- function(grid) {
   # Version simple : pas de propagation avancée
   # Améliorations possibles :
@@ -124,6 +126,7 @@ propagate_constraints <- function(grid) {
 #'
 #' @param grid SlitherlinkGrid object
 #' @return Liste d'arêtes
+#' @keywords internal
 get_all_possible_edges <- function(grid) {
   edges <- list()
 
@@ -189,6 +192,7 @@ get_all_possible_edges <- function(grid) {
 #'
 #' @param grid SlitherlinkGrid object
 #' @return TRUE si la configuration peut mener à une solution, FALSE sinon
+#' @keywords internal
 is_promising <- function(grid) {
   # Règle 1 : Aucun point ne doit avoir plus de 2 arêtes
   if (!check_vertex_degrees(grid)) {

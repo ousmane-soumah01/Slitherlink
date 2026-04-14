@@ -27,7 +27,9 @@
 - [Application Shiny](#-application-shiny)
 - [Tests](#-tests)
 - [Documentation](#-documentation)
+- [Diagramme de Gantt](#-diagramme-de-gantt--planning-du-projet)
 - [Auteurs](#-auteurs)
+- [Licence](#-licence)
 
 ---
 
@@ -95,7 +97,7 @@ Puzzle :                  Solution :
 
 | Technologie | Version | Usage |
 |------------|---------|-------|
-| ![R](https://img.shields.io/badge/R-276DC3?style=flat&logo=r&logoColor=white) | 4.5+ | Langage principal |
+| ![R](https://img.shields.io/badge/R-276DC3?style=flat&logo=r&logoColor=white) | 4.3+ | Langage principal |
 | ![R6](https://img.shields.io/badge/R6-2.5.0+-blue?style=flat) | 2.5.0+ | Programmation orientée objet |
 | ![Shiny](https://img.shields.io/badge/Shiny-1.7.0+-blue?style=flat&logo=rstudio) | 1.7.0+ | Interface web interactive |
 | ![ggplot2](https://img.shields.io/badge/ggplot2-3.0.0+-red?style=flat) | 3.0.0+ | Visualisation graphique |
@@ -111,12 +113,12 @@ Puzzle :                  Solution :
 
 ### Prérequis
 
-- **R** version 4.5 ou supérieure
+- **R** version 4.3 ou supérieure
 - **RStudio** (recommandé)
 
 ### Installation des dépendances
 ```r
-install.packages(c("R6", "shiny", "jsonlite", "ggplot2", "testthat", "roxygen2"))
+install.packages(c("R6", "shiny", "jsonlite", "ggplot2", "testthat", "roxygen2", "devtools"))
 ```
 
 ### Cloner le projet
@@ -240,7 +242,7 @@ Slitherlink/
 ├── inst/                       # Fichiers installés avec le package
 │   ├── shiny/                  # Application Shiny
 │   │   └── app.R               # Interface utilisateur et logique serveur
-│   └── puzzles/                # Puzzles JSON pré-définis (répertoire prévu)
+│   └── puzzles/                # Puzzles JSON pré-définis
 │
 ├── tests/                      # Tests unitaires
 │   ├── testthat.R              # Point d'entrée testthat
@@ -248,16 +250,21 @@ Slitherlink/
 │       ├── test-grid.R         # Tests de la classe grille (5 tests)
 │       ├── test-solver.R       # Tests du solveur (3 tests)
 │       ├── test-validation.R   # Tests de validation (3 tests)
-│       ├── test-puzzles.R      # Tests de gestion de puzzles (3 tests)
-│       └── test-utils.R        # Tests des utilitaires (3 tests)
+│       ├── test-puzzles.R      # Tests de gestion des puzzles (3 tests)
+│       ├── test-utils.R        # Tests des utilitaires (3 tests)
+│       └── test-app.R          # Tests de l'application Shiny (19 tests)
+│                                 # Hydratation Shiny, event dispatcher,
+│                                 # éditeur et bridge solveur
+│
+├── docs/                       # Ressources de documentation
+│   └── gantt_slitherlink.png   # Diagramme de Gantt du projet
 │
 ├── man/                        # Documentation générée par roxygen2
 ├── vignettes/                  # Vignettes du package (répertoire prévu)
 ├── DESCRIPTION                 # Métadonnées du package (v1.0.0)
 ├── NAMESPACE                   # Fonctions exportées (19 exports)
-└── README.md                   # Ce fichier
+└── README.md                   # Documentation principale du projet
 ```
-
 ---
 
 ## 🧠 Algorithme de résolution
@@ -430,7 +437,7 @@ help(package = "Slitherlink")
 
 ## 👨‍💻 Auteurs
 
-**Ousmane SOUMAH** *(auteur principal & mainteneur)*
+**Ousmane SOUMAH** *(auteur & mainteneur)*
 📧 ousmaneozosoumah924@gmail.com
 
 **Rodrigue MAMY** *(auteur & contributeur)*
@@ -438,13 +445,7 @@ help(package = "Slitherlink")
 
 👨‍🏫 **Relecteur** : Jean-Michel Marin — jean-michel.marin@umontpellier.fr
 🎓 Université de Montpellier
-📅 Version 1.0.0 — Mars 2026
-
----
-
-## 📄 Licence
-
-Ce projet est distribué sous licence **MIT**. Voir le fichier `LICENSE` pour plus de détails.
+📅 Version 1.0.0 — Avril 2026
 
 ---
 
@@ -475,8 +476,7 @@ Le projet s'est développé sur **8 semaines** (19 février → 17 avril 2026), 
 
 ![Diagramme de Gantt du projet Slitherlink](docs/gantt_slitherlink.png)
 
-*Figure — Planning du projet Slitherlink.  
-Date limite de soumission : **vendredi 17 avril 2026 à 17h** (dépôt GitHub + envoi par mail).*
+***Figure — Planning du projet Slitherlink.***
 
 ---
 
@@ -496,6 +496,12 @@ Date limite de soumission : **vendredi 17 avril 2026 à 17h** (dépôt GitHub + 
 - [R6 Classes](https://r6.r-lib.org/)
 - [Shiny Documentation](https://shiny.rstudio.com/)
 - [ggplot2 Documentation](https://ggplot2.tidyverse.org/)
+
+---
+
+## 📄 Licence
+
+Ce projet est distribué sous licence **MIT**. Voir le fichier `LICENSE` pour plus de détails.
 
 ---
 
