@@ -1,0 +1,26 @@
+{
+  "width": 3,
+  "height": 3,
+  "constraints": [
+    {
+      "row": 1,
+      "col": 1,
+      "value": 2
+    },
+    {
+      "row": 1,
+      "col": 3,
+      "value": 2
+    },
+    {
+      "row": 3,
+      "col": 1,
+      "value": 2
+    },
+    {
+      "row": 3,
+      "col": 3,
+      "value": 2
+    }
+  ]
+}

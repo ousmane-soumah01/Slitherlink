@@ -1,0 +1,124 @@
+#' Charge un puzzle depuis un fichier JSON
+#'
+#' @export
+load_puzzle <- function(filename) {
+  if (!grepl("\\.json$", filename)) {
+    filename_pkg <- system.file("puzzles", paste0(filename, ".json"), package = "Slitherlink")
+
+    if (filename_pkg == "") {
+      filename <- file.path("inst", "puzzles", paste0(filename, ".json"))
+    } else {
+      filename <- filename_pkg
+    }
+  }
+
+  if (!file.exists(filename)) {
+    stop(paste("Fichier puzzle introuvable:", filename))
+  }
+
+  puzzle_data <- jsonlite::fromJSON(filename)
+  grid <- create_grid(puzzle_data$width, puzzle_data$height)
+
+  if (!is.null(puzzle_data$constraints)) {
+    for (i in 1:nrow(puzzle_data$constraints)) {
+      constraint <- puzzle_data$constraints[i, ]
+      grid$add_constraint(constraint$row, constraint$col, constraint$value)
+    }
+  }
+
+  return(grid)
+}
+
+#' Sauvegarde un puzzle
+#'
+#' @export
+save_puzzle <- function(grid, filename) {
+  constraints_list <- list()
+
+  for (row in 1:grid$height) {
+    for (col in 1:grid$width) {
+      value <- grid$constraints[row, col]
+      if (!is.na(value)) {
+        constraints_list[[length(constraints_list) + 1]] <- list(
+          row = row,
+          col = col,
+          value = value
+        )
+      }
+    }
+  }
+
+  puzzle_data <- list(
+    width = grid$width,
+    height = grid$height,
+    constraints = constraints_list
+  )
+
+  jsonlite::write_json(puzzle_data, filename, pretty = TRUE, auto_unbox = TRUE)
+  cat("Puzzle sauvegardé dans", filename, "\n")
+}
+
+#' Puzzle facile 2×2
+#'
+#' @export
+create_example_easy <- function() {
+  grid <- create_grid(2, 2)
+  grid$add_constraint(1, 1, 2)
+  grid$add_constraint(2, 2, 2)
+  return(grid)
+}
+
+#' Puzzle moyen 3×3
+#'
+#' @export
+create_example_medium <- function() {
+  grid <- create_grid(3, 3)
+  grid$add_constraint(1, 1, 2)
+  grid$add_constraint(1, 3, 2)
+  grid$add_constraint(3, 1, 2)
+  grid$add_constraint(3, 3, 2)
+  return(grid)
+}
+
+#' Puzzle difficile 5×5
+#'
+#' @export
+create_example_hard <- function() {
+  grid <- create_grid(5, 5)
+
+  # 1. Les 4 coins
+  grid$add_constraint(1, 1, 2)
+  grid$add_constraint(1, 5, 2)
+  grid$add_constraint(5, 1, 2)
+  grid$add_constraint(5, 5, 2)
+
+  # 2. Le mur central de zéros (Élagage massif et instantané)
+  # Ce bloc de 0 empêche l'algorithme d'explorer l'intérieur
+  for (row in 2:4) {
+    for (col in 2:4) {
+      grid$add_constraint(row, col, 0)
+    }
+  }
+
+  return(grid)
+}
+
+#' Génère un puzzle aléatoire
+#'
+#' @export
+generate_random_puzzle <- function(width = 7, height = 7, density = 0.3) {
+  grid <- create_grid(width, height)
+
+  total_cells <- width * height
+  num_constraints <- round(total_cells * density)
+  positions <- sample(1:total_cells, num_constraints)
+
+  for (pos in positions) {
+    row <- ((pos - 1) %/% width) + 1
+    col <- ((pos - 1) %% width) + 1
+    value <- sample(0:3, 1)
+    grid$add_constraint(row, col, value)
+  }
+
+  return(grid)
+}
